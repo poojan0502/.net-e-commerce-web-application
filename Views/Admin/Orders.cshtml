@@ -1,0 +1,30 @@
+﻿@model IEnumerable<Group_Project.Models.Order>
+@{
+    Layout = "_Layout";
+}
+<h1>Orders</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>User</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderId</td>
+                <td>@order.User?.Email</td>
+                <td>@order.TotalAmount.ToString("C")</td>
+                <td>@order.OrderStatus</td>
+                <td>
+                    <a href="#">View Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
