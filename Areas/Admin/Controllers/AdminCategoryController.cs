@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Group_Project.Models;
-using System;
 using System.Linq;
+using Group_Project.Models;
 
-namespace Group_Project.Controllers
+namespace Group_Project.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class AdminCategoryController : Controller
     {
         private readonly AppDbContext _context;
@@ -15,31 +14,34 @@ namespace Group_Project.Controllers
             _context = context;
         }
 
-        // GET: /AdminCategory/Index
+        // GET: Admin/AdminCategory/Index
         public IActionResult Index()
         {
             var categories = _context.Categories.ToList();
             return View(categories);
         }
 
-        // GET: /AdminCategory/Details/5
+        // GET: Admin/AdminCategory/Details/5
         public IActionResult Details(int id)
         {
             var category = _context.Categories.FirstOrDefault(c => c.CategoryId == id);
             if (category == null)
+            {
                 return NotFound();
+            }
             return View(category);
         }
 
-        // GET: /AdminCategory/Create
+        // GET: Admin/AdminCategory/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: /AdminCategory/Create
+        // POST: Admin/AdminCategory/Create
+        
+        //[ValidateAntiForgeryToken]
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(Category category)
         {
             if (ModelState.IsValid)
@@ -51,22 +53,27 @@ namespace Group_Project.Controllers
             return View(category);
         }
 
-        // GET: /AdminCategory/Edit/5
+
+        // GET: Admin/AdminCategory/Edit/5
         public IActionResult Edit(int id)
         {
             var category = _context.Categories.FirstOrDefault(c => c.CategoryId == id);
             if (category == null)
+            {
                 return NotFound();
+            }
             return View(category);
         }
 
-        // POST: /AdminCategory/Edit/5
+        // POST: Admin/AdminCategory/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Category category)
         {
             if (id != category.CategoryId)
+            {
                 return BadRequest();
+            }
 
             if (ModelState.IsValid)
             {
@@ -74,18 +81,17 @@ namespace Group_Project.Controllers
                 {
                     _context.Update(category);
                     _context.SaveChanges();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (Exception)
+                catch
                 {
                     ModelState.AddModelError("", "Unable to update category");
-                    return View(category);
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(category);
         }
 
-        // GET: /AdminCategory/Delete/5
+        // GET: Admin/AdminCategory/Delete/5
         public IActionResult Delete(int id)
         {
             var category = _context.Categories.FirstOrDefault(c => c.CategoryId == id);
@@ -94,7 +100,7 @@ namespace Group_Project.Controllers
             return View(category);
         }
 
-        // POST: /AdminCategory/Delete/5
+        // POST: Admin/AdminCategory/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
@@ -102,7 +108,6 @@ namespace Group_Project.Controllers
             var category = _context.Categories.FirstOrDefault(c => c.CategoryId == id);
             if (category == null)
                 return NotFound();
-
             _context.Categories.Remove(category);
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));

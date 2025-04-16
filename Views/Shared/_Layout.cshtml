@@ -26,9 +26,13 @@
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/Admin/Login">Admin</a>
+                        <a class="nav-link" href="@Url.Action("Index", "Home", new { area = "Admin" })">Admin Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Login", "Home", new { area = "Admin" })">Admin Login</a>
                     </li>
                 </ul>
+
             </div>
         </nav>
     </header>

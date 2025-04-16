@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Group_Project.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
-namespace Group_Project.Controllers
+namespace Group_Project.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class AdminProductController : Controller
     {
         private readonly AppDbContext _context;
@@ -18,62 +18,64 @@ namespace Group_Project.Controllers
         {
             _context = context;
         }
+
+        // GET: Admin/AdminProduct/Index
         public IActionResult Index()
         {
-            var products = _context.Products.Include(p => p.Category).ToList();
+            var products = _context.Products.ToList();
             return View(products);
         }
-        // GET: /AdminProduct/Create
+
+        // GET: Admin/AdminProduct/Details/5
+        public IActionResult Details(int id)
+        {
+            var product = _context.Products.FirstOrDefault(p => p.ProductId == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
+        }
+
+        // GET: Admin/AdminProduct/Create
         public IActionResult Create()
         {
             ViewBag.Categories = new SelectList(_context.Categories.ToList(), "CategoryId", "CategoryName");
             return View();
         }
 
-        // POST: /AdminProduct/Create
+        // POST: Admin/AdminProduct/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product, IFormFile productImage)
         {
             if (ModelState.IsValid)
             {
-                // If a file is uploaded, process and save it.
                 if (productImage != null && productImage.Length > 0)
                 {
-                    // Create a unique filename using a GUID.
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(productImage.FileName);
-                    // Define the path to the "products" images folder under wwwroot.
                     var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
-
-                    // Ensure the uploads directory exists.
                     if (!Directory.Exists(uploads))
                     {
                         Directory.CreateDirectory(uploads);
                     }
-
-                    // Combine the uploads path with the file name.
                     var filePath = Path.Combine(uploads, fileName);
-
-                    // Save the file to disk.
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await productImage.CopyToAsync(stream);
                     }
-
-                    // Store the relative path in the product model (for displaying later).
                     product.ImageURL = "/images/products/" + fileName;
                 }
-
                 product.CreatedAt = DateTime.Now;
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
             ViewBag.Categories = new SelectList(_context.Categories.ToList(), "CategoryId", "CategoryName");
             return View(product);
         }
-        // GET: /AdminProduct/Edit/5
+
+        // GET: Admin/AdminProduct/Edit/5
         public IActionResult Edit(int id)
         {
             var product = _context.Products.FirstOrDefault(p => p.ProductId == id);
@@ -85,7 +87,7 @@ namespace Group_Project.Controllers
             return View(product);
         }
 
-        // POST: /AdminProduct/Edit/5
+        // POST: Admin/AdminProduct/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Product product, IFormFile productImage)
@@ -97,27 +99,22 @@ namespace Group_Project.Controllers
 
             if (ModelState.IsValid)
             {
-                // If a new image file is uploaded, process and update the product image.
+                // Process the image upload if new file is provided.
                 if (productImage != null && productImage.Length > 0)
                 {
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(productImage.FileName);
                     var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
-
                     if (!Directory.Exists(uploads))
                     {
                         Directory.CreateDirectory(uploads);
                     }
-
                     var filePath = Path.Combine(uploads, fileName);
-
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await productImage.CopyToAsync(stream);
                     }
-
                     product.ImageURL = "/images/products/" + fileName;
                 }
-
                 try
                 {
                     _context.Update(product);
@@ -132,6 +129,28 @@ namespace Group_Project.Controllers
             }
             ViewBag.Categories = new SelectList(_context.Categories.ToList(), "CategoryId", "CategoryName", product.CategoryId);
             return View(product);
+        }
+
+        // GET: Admin/AdminProduct/Delete/5
+        public IActionResult Delete(int id)
+        {
+            var product = _context.Products.FirstOrDefault(p => p.ProductId == id);
+            if (product == null)
+                return NotFound();
+            return View(product);
+        }
+
+        // POST: Admin/AdminProduct/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var product = _context.Products.FirstOrDefault(p => p.ProductId == id);
+            if (product == null)
+                return NotFound();
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
     }
 }

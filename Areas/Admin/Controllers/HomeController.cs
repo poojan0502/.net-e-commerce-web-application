@@ -2,13 +2,14 @@
 using Group_Project.Models;
 using System.Linq;
 
-namespace Group_Project.Controllers
+namespace Group_Project.Areas.Admin.Controllers
 {
-    public class AdminController : Controller
+    [Area("Admin")]
+    public class HomeController : Controller
     {
         private readonly AppDbContext _context;
 
-        public AdminController(AppDbContext context)
+        public HomeController(AppDbContext context)
         {
             _context = context;
         }
